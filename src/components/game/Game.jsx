@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { useGame }       from '../../hooks/useGame.js'
-import { useSound }      from '../../hooks/useSound.js'
 import Staff             from '../staff/Staff.jsx'
 import AnswerButtons     from '../answer-buttons/AnswerButtons.jsx'
 import ScoreBadge        from '../score-badge/ScoreBadge.jsx'
@@ -11,10 +10,10 @@ import styles            from './Game.module.css'
 const INSTRUMENT_LABELS = { violin: 'Цигулка 🎻', harp: 'Арфа 🪉', piano: 'Пиано 🎹' }
 const CLEF_LABELS       = { treble: 'Ключ Сол', bass: 'Ключ Фа' }
 
-export default function Game({ instrument, level, onBack }) {
+export default function Game({ instrument, level, sound, onBack }) {
   const { currentNote, answers, selected, isCorrect, score, streak, totalAnswered, answer, next } =
     useGame(level.notes, level.answers)
-  const { load, play, stop, loading, ready } = useSound()
+  const { load, play, stop, loading, ready } = sound
 
   const [showCelebration, setShowCelebration] = useState(false)
   const [showCheatSheet,  setShowCheatSheet]  = useState(false)

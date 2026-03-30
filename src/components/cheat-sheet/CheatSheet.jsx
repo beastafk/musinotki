@@ -10,7 +10,7 @@ const VIEW_X         = 52   // crop dead space left of clef
 const NOTE_RX        = 10
 const NOTE_RY        = 7
 const NOTE_SPACING   = 54
-const FIRST_NOTE_X   = 140
+const FIRST_NOTE_X   = 155
 const PAD            = LINE_SPACING * 2
 const LABEL_PAD      = 38   // extra space below content for solfège labels
 const TREBLE_BOTTOM  = 222
@@ -22,7 +22,8 @@ function MultiStaff({ notes, clef }) {
   const bottomY   = clef === 'treble' ? TREBLE_BOTTOM : BASS_BOTTOM
   const staffTopY = bottomY - 8 * STEP
 
-  const noteXs      = notes.map((_, i) => FIRST_NOTE_X + i * NOTE_SPACING)
+  const firstNoteX  = clef === 'treble' ? FIRST_NOTE_X : FIRST_NOTE_X + 20
+  const noteXs      = notes.map((_, i) => firstNoteX + i * NOTE_SPACING)
   const staffRight  = noteXs[noteXs.length - 1] + 60
   const VIEW_W      = staffRight + 20
   const noteYValues = notes.map(n => nY(n.pos, bottomY))
@@ -108,10 +109,12 @@ export default function CheatSheet({ notes, onClose }) {
           <button className={styles.closeBtn} onClick={onClose}>✕</button>
         </div>
 
-        <div className={styles.section}>
-          <span className={styles.clefLabel}>Ключ Сол</span>
-          <MultiStaff notes={trebleNotes} clef="treble" />
-        </div>
+        {trebleNotes.length > 0 && (
+          <div className={styles.section}>
+            <span className={styles.clefLabel}>Ключ Сол</span>
+            <MultiStaff notes={trebleNotes} clef="treble" />
+          </div>
+        )}
 
         {bassNotes.length > 0 && (
           <div className={styles.section}>

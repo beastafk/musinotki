@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from 'react'
-import Soundfont from 'soundfont-player'
+import { Soundfont, CacheStorage } from 'smplr'
 
 const INSTRUMENT_MAP = {
   violin: 'violin',
@@ -7,13 +7,24 @@ const INSTRUMENT_MAP = {
   piano:  'acoustic_grand_piano',
 }
 
+const cache = new CacheStorage()
+
 export function useSound() {
-  const acRef          = useRef(null)
+  const acRef          = useRef(new (window.AudioContext || window.webkitAudioContext)())
   const instrumentRef  = useRef(null)
+  const prefetchRef    = useRef(null)  // { name, sf, promise }
   const currentNameRef = useRef(null)
-  const activeNodeRef  = useRef(null)
+  const stopCurrentRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [ready, setReady]     = useState(false)
+
+  // Called on instrument select — downloads samples into cache in the background
+  const prefetch = useCallback((instrumentKey) => {
+    const name = INSTRUMENT_MAP[instrumentKey]
+    if (!name) return
+    const sf = new Soundfont(acRef.current, { instrument: name, storage: cache })
+    prefetchRef.current = { name, sf, promise: sf.load.catch(() => {}) }
+  }, [])
 
   const load = useCallback(async (instrumentKey) => {
     const name = INSTRUMENT_MAP[instrumentKey]
@@ -21,19 +32,24 @@ export function useSound() {
 
     setLoading(true)
     setReady(false)
+    instrumentRef.current = null
 
     try {
-      if (!acRef.current) {
-        acRef.current = new (window.AudioContext || window.webkitAudioContext)()
-      }
-      // Resume context in case it was suspended (browser policy)
       if (acRef.current.state === 'suspended') {
         await acRef.current.resume()
       }
 
-      instrumentRef.current = await Soundfont.instrument(acRef.current, name, {
-        gain: 3,
-      })
+      // Reuse the prefetched instance if it matches — avoids duplicate schedulers
+      let sf
+      if (prefetchRef.current?.name === name) {
+        await prefetchRef.current.promise
+        sf = prefetchRef.current.sf
+      } else {
+        sf = new Soundfont(acRef.current, { instrument: name, storage: cache })
+        await sf.load
+      }
+
+      instrumentRef.current = sf
       currentNameRef.current = name
       setReady(true)
     } catch (err) {
@@ -44,22 +60,22 @@ export function useSound() {
   }, [ready])
 
   const stop = useCallback(() => {
-    try { activeNodeRef.current?.stop() } catch (_) {}
-    activeNodeRef.current = null
+    try { stopCurrentRef.current?.() } catch (_) {}
+    stopCurrentRef.current = null
   }, [])
 
   const play = useCallback((note) => {
     if (!instrumentRef.current) return
     stop()
     const doPlay = () => {
-      activeNodeRef.current = instrumentRef.current.play(note, 0, { duration: 0.85 })
+      stopCurrentRef.current = instrumentRef.current.start({ note, duration: 0.85 })
     }
-    if (acRef.current?.state === 'suspended') {
+    if (acRef.current.state === 'suspended') {
       acRef.current.resume().then(doPlay)
     } else {
       doPlay()
     }
   }, [stop])
 
-  return { load, play, stop, loading, ready }
+  return { prefetch, load, play, stop, loading, ready }
 }
