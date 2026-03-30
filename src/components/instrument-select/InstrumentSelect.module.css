@@ -1,0 +1,86 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  gap: 24px;
+}
+
+.title {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 900;
+  color: var(--purple-dark);
+  text-align: center;
+  animation: bounce 2s ease-in-out infinite;
+  text-shadow: 0 3px 10px rgba(91,33,182,0.15);
+}
+
+.sub {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  max-width: 480px;
+}
+
+.cards {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 240px;
+  padding: 32px 24px 26px;
+  border-radius: 28px;
+  background: var(--card-bg);
+  border: 3px solid var(--card-border);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-family: inherit;
+}
+
+.card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+}
+
+.card:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.emoji { font-size: 3.5rem; animation: float 3s ease-in-out infinite; }
+.name  { font-size: 1.6rem; font-weight: 900; color: var(--text); }
+.desc  { font-size: 1rem; font-weight: 600; color: var(--muted); text-align: center; }
+
+.play {
+  margin-top: 6px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--card-border);
+  background: #fff;
+  padding: 8px 20px;
+  border-radius: 20px;
+}
+
+.hint {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: center;
+  background: var(--white);
+  padding: 14px 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  line-height: 1.8;
+}
+
+.hint strong { color: var(--purple); }
