@@ -69,7 +69,7 @@ export default function Game({ instrument, level, onBack }) {
 
       {/* Help button on its own row */}
       <div className={styles.helpRow}>
-        <button className={styles.helpBtn} onClick={() => setShowCheatSheet(true)} title="Шпаргалка">?</button>
+        <button className={styles.helpBtn} onClick={() => setShowCheatSheet(true)} title="Помощ">🎼</button>
       </div>
 
       {/* Score */}

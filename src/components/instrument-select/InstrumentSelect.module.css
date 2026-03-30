@@ -84,3 +84,27 @@
 }
 
 .hint strong { color: var(--purple); }
+
+.githubLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.githubLink:hover {
+  color: var(--text);
+  background: rgba(0,0,0,0.06);
+}
+
+.githubIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
