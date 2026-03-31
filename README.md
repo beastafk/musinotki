@@ -12,7 +12,7 @@ A music note-reading practice app for kids, built with React. Children learn to 
 - 🪉 **Harp** — right hand / left hand / both hands
 - 🎹 **Piano** — same grand staff as harp, with piano sounds
 - Treble and bass clef rendered with the [Bravura](https://github.com/steinbergmedia/bravura) SMuFL font
-- Note sounds via [soundfont-player](https://github.com/danigb/soundfont-player)
+- Note sounds via [smplr](https://github.com/danigb/smplr) (Web Audio API sampler)
 - Auto-advances on correct answer; shows "Next" button on wrong answer for review
 - Fully responsive — works on mobile and desktop
 - Bulgarian UI (solfège notation)
