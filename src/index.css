@@ -42,7 +42,7 @@ body, #root {
 }
 
 body {
-  font-family: 'Nunito', 'Segoe UI', sans-serif;
+  font-family: 'Nunito Variable', 'Nunito', 'Segoe UI', sans-serif;
   color: var(--text);
 }
 
@@ -50,7 +50,20 @@ button {
   font-family: inherit;
   cursor: pointer;
   border: none;
-  outline: none;
+}
+
+/* Visible focus ring for keyboard users only (not on tap/click) */
+:focus-visible {
+  outline: 3px solid var(--purple);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @keyframes pop-in {

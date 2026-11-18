@@ -8,12 +8,14 @@ A music note-reading practice app for kids, built with React. Children learn to 
 
 ## Features
 
-- 🎻 **Violin** — open strings (level 1) and first position natural notes (level 2)
+- 🎻 **Violin** — open strings (level 1), Сол/Ре/Ла/Ми everywhere in first position, open or fingered (level 2), and all first-position natural notes up to the 4th finger on E, G3–B5 (level 3)
 - 🪉 **Harp** — right hand / left hand / both hands
 - 🎹 **Piano** — same grand staff as harp, with piano sounds
 - Treble and bass clef rendered with the [Bravura](https://github.com/steinbergmedia/bravura) SMuFL font
 - Note sounds via [smplr](https://github.com/danigb/smplr) (Web Audio API sampler)
 - Auto-advances on correct answer; shows "Next" button on wrong answer for review
+- Keyboard shortcuts: number keys 1–7 pick an answer, Enter continues after a wrong answer, Esc closes the cheat sheet
+- Browser Back button works between screens (e.g. `#/violin/v2` links straight to a level)
 - Fully responsive — works on mobile and desktop
 - Bulgarian UI (solfège notation)
 
@@ -25,9 +27,11 @@ A music note-reading practice app for kids, built with React. Children learn to 
 npm install
 npm run dev    # dev server at http://localhost:5173
 npm run build  # production build
+npm test       # unit tests (vitest)
+npm run lint   # eslint
 ```
 
-Requires Node.js 18+.
+Requires Node.js 20.19+.
 
 ---
 
@@ -36,23 +40,30 @@ Requires Node.js 18+.
 ```
 src/
   data/
+    instruments.js  # Instrument metadata (name, emoji, colours, soundfont)
     notes.js        # Note definitions and staff position math
     levels.js       # Level configs per instrument (notes, answers, labels)
   hooks/
     useGame.js      # Game state (current note, score, streak)
     useSound.js     # Soundfont loading and playback
+    useRoute.js     # Hash-based navigation (browser Back support)
   components/
     instrument-select/   # Home screen
     level-select/        # Level picker
     game/                # Main game screen
-    staff/               # SVG staff and note renderer
+    staff/               # SVG staff and note renderer (+ shared geometry/primitives)
     answer-buttons/      # Solfège answer buttons
     celebration/         # Correct/wrong feedback
     cheat-sheet/         # Reference chart overlay
     score-badge/         # Score, streak, accuracy display
 public/
-  fonts/Bravura.woff2    # SMuFL music font (SIL OFL)
+  fonts/Bravura.woff2    # SMuFL music font (SIL OFL), subset to the two clef glyphs
+design/
+  favicon-source.png     # 2048px source for the favicons
 ```
+
+To add more Bravura glyphs, re-subset from the full font, e.g.
+`pyftsubset Bravura.woff2 --unicodes=U+E050,U+E062,... --flavor=woff2 --output-file=public/fonts/Bravura.woff2`.
 
 ---
 
@@ -87,7 +98,9 @@ export const LEVELS = {
 }
 ```
 
-Add the instrument to `INSTRUMENT_MAP` in `src/hooks/useSound.js` (General MIDI name) and to `INSTRUMENTS` in `src/components/instrument-select/InstrumentSelect.jsx`.
+Add the instrument to `INSTRUMENTS` in `src/data/instruments.js` (name, emoji, colours and General MIDI `soundfont` name).
+
+Notes can be generated with `noteRange('G3', 'A5', 'treble')` or `makeNote('E', 5, 'treble')`.
 
 ---
 

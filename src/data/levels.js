@@ -1,5 +1,5 @@
 import {
-  VIOLIN_NOTES, VIOLIN_L2_NOTES,
+  VIOLIN_NOTES, VIOLIN_STRING_NAME_NOTES, VIOLIN_FIRST_POSITION_NOTES,
   HARP_NOTES, HARP_TREBLE_NOTES, HARP_BASS_NOTES,
 } from './notes.js'
 
@@ -18,9 +18,17 @@ export const LEVELS = {
     {
       id: 'v2',
       stars: 2,
+      label: 'Струни и пръсти',
+      desc: 'Сол · Ре · Ла · Ми · навсякъде в първа позиция',
+      notes: VIOLIN_STRING_NAME_NOTES,
+      answers: ['Сол', 'Ре', 'Ла', 'Ми'],
+    },
+    {
+      id: 'v3',
+      stars: 3,
       label: 'Първа позиция',
-      desc: 'Всички ноти · Сол³ – Ла⁵',
-      notes: VIOLIN_L2_NOTES,
+      desc: 'Всички ноти · Сол³ – Си⁵',
+      notes: VIOLIN_FIRST_POSITION_NOTES,
       answers: ALL_SOLFEGE,
     },
   ],

@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from './AnswerButtons.module.css'
 
 export default function AnswerButtons({ answers, selected, correctAnswer, onAnswer }) {
@@ -16,17 +15,19 @@ export default function AnswerButtons({ answers, selected, correctAnswer, onAnsw
     : styles.grid
 
   return (
-    <div className={gridClass}>
-      {answers.map(label => (
+    <div className={gridClass} role="group" aria-label="Отговори">
+      {answers.map((label, i) => (
         <button
           key={label}
           className={`${styles.btn} ${stateClass(label)}`}
-          onClick={() => !answered && onAnswer(label)}
+          onClick={() => onAnswer(label)}
           disabled={answered}
+          aria-keyshortcuts={String(i + 1)}
         >
           {label}
-          {answered && label === correctAnswer && <span className={styles.tick}>✓</span>}
-          {answered && label === selected && label !== correctAnswer && <span className={styles.cross}>✗</span>}
+          <span className={styles.key} aria-hidden="true">{i + 1}</span>
+          {answered && label === correctAnswer && <span className={styles.tick} aria-label="верен отговор">✓</span>}
+          {answered && label === selected && label !== correctAnswer && <span className={styles.cross} aria-label="грешен отговор">✗</span>}
         </button>
       ))}
     </div>

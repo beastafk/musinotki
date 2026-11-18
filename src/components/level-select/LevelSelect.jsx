@@ -1,11 +1,5 @@
-import React from 'react'
+import { INSTRUMENT_BY_KEY } from '../../data/instruments.js'
 import styles from './LevelSelect.module.css'
-
-const INSTRUMENT_META = {
-  violin: { emoji: '🎻', name: 'Цигулка' },
-  harp:   { emoji: '🪉', name: 'Арфа' },
-  piano:  { emoji: '🎹', name: 'Пиано' },
-}
 
 const STAR_COLORS = [
   { bg: '#dcfce7', border: '#16a34a' }, // ⭐   green
@@ -14,11 +8,11 @@ const STAR_COLORS = [
 ]
 
 function Stars({ count }) {
-  return <span className={styles.stars}>{'⭐'.repeat(count)}</span>
+  return <span className={styles.stars} aria-label={`${count} звезди`}>{'⭐'.repeat(count)}</span>
 }
 
 export default function LevelSelect({ instrument, levels, onSelect, onBack }) {
-  const meta = INSTRUMENT_META[instrument]
+  const meta = INSTRUMENT_BY_KEY[instrument]
 
   return (
     <div className={styles.page}>
@@ -27,7 +21,7 @@ export default function LevelSelect({ instrument, levels, onSelect, onBack }) {
       </div>
 
       <div className={styles.heading}>
-        <span className={styles.instrEmoji}>{meta.emoji}</span>
+        <span className={styles.instrEmoji} aria-hidden="true">{meta.emoji}</span>
         <h1 className={styles.title}>{meta.name}</h1>
         <p className={styles.sub}>Избери ниво</p>
       </div>

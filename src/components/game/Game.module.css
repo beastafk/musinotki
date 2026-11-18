@@ -52,37 +52,33 @@
 
 .helpBtn:hover { transform: scale(1.1); }
 
-.helpRow {
-  width: 100%;
-  max-width: 720px;
+.helpSlot {
   display: flex;
   justify-content: flex-end;
-  margin-top: -12px;
-}
-
-.nextPlaceholder {
-  width: clamp(40px, 8vw, 58px);
-  height: clamp(40px, 8vw, 58px);
-  flex-shrink: 0;
 }
 
 .nextBtn {
+  width: 100%;
+  max-width: 420px;
   background: linear-gradient(135deg, var(--purple) 0%, #9333ea 100%);
   color: #fff;
-  font-size: clamp(1rem, 3.5vw, 1.6rem);
-  font-weight: 800;
-  padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 22px);
-  border-radius: 20px;
-  box-shadow: 0 4px 0 var(--purple-dark);
-  font-family: inherit;
+  font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+  font-weight: 900;
+  padding: 16px 28px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--purple-dark), 0 6px 16px rgba(124,58,237,0.25);
   transition: transform 0.1s, box-shadow 0.1s;
-  white-space: nowrap;
   animation: pop-in 0.25s ease-out;
 }
 
 .nextBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 var(--purple-dark);
+  box-shadow: 0 6px 0 var(--purple-dark), 0 10px 20px rgba(124,58,237,0.3);
+}
+
+.nextBtn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 var(--purple-dark);
 }
 
 .instrLabel {
@@ -139,7 +135,9 @@
   transition: transform 0.1s, box-shadow 0.1s;
 }
 
-.listenBtn:hover {
+.listenBtn:disabled { opacity: 0.7; cursor: progress; }
+
+.listenBtn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 0 #0e7490, 0 10px 20px rgba(8,145,178,0.3);
 }

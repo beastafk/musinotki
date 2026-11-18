@@ -81,3 +81,18 @@
 
 .tick  { background: #ffffff; color: #16a34a; }
 .cross { background: #ffffff; color: #dc2626; }
+
+/* Keyboard shortcut hint — only on devices with a mouse/keyboard */
+.key {
+  display: none;
+  position: absolute;
+  bottom: 4px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0.6;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .key { display: block; }
+}

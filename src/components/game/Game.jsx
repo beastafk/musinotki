@@ -1,74 +1,94 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { useGame }       from '../../hooks/useGame.js'
-import Staff             from '../staff/Staff.jsx'
-import AnswerButtons     from '../answer-buttons/AnswerButtons.jsx'
-import ScoreBadge        from '../score-badge/ScoreBadge.jsx'
-import Celebration       from '../celebration/Celebration.jsx'
-import CheatSheet        from '../cheat-sheet/CheatSheet.jsx'
-import styles            from './Game.module.css'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import { useGame }           from '../../hooks/useGame.js'
+import { INSTRUMENT_BY_KEY } from '../../data/instruments.js'
+import Staff                 from '../staff/Staff.jsx'
+import AnswerButtons         from '../answer-buttons/AnswerButtons.jsx'
+import ScoreBadge            from '../score-badge/ScoreBadge.jsx'
+import Celebration           from '../celebration/Celebration.jsx'
+import CheatSheet            from '../cheat-sheet/CheatSheet.jsx'
+import styles                from './Game.module.css'
 
-const INSTRUMENT_LABELS = { violin: 'Цигулка 🎻', harp: 'Арфа 🪉', piano: 'Пиано 🎹' }
-const CLEF_LABELS       = { treble: 'Ключ Сол', bass: 'Ключ Фа' }
+const CLEF_LABELS = { treble: 'Ключ Сол', bass: 'Ключ Фа' }
 
 export default function Game({ instrument, level, sound, onBack }) {
   const { currentNote, answers, selected, isCorrect, score, streak, totalAnswered, answer, next } =
     useGame(level.notes, level.answers)
-  const { load, play, stop, loading, ready } = sound
+  const { unlock, play, stop, unlocked, isReady, isLoading, error } = sound
+  const ready   = isReady(instrument)
+  const loading = isLoading(instrument)
+  const meta    = INSTRUMENT_BY_KEY[instrument]
 
-  const [showCelebration, setShowCelebration] = useState(false)
-  const [showCheatSheet,  setShowCheatSheet]  = useState(false)
-  const [audioUnlocked,   setAudioUnlocked]   = useState(false)
+  const [showCheatSheet, setShowCheatSheet] = useState(false)
+  const nextBtnRef = useRef(null)
+  const answered   = selected !== null
 
-  const handleNext = useCallback(() => {
-    setShowCelebration(false)
-    next()
-  }, [next])
+  const enableSound = useCallback(() => { unlock(instrument) }, [unlock, instrument])
 
-  const unlockAndLoad = useCallback(() => {
-    if (!audioUnlocked) {
-      setAudioUnlocked(true)
-      load(instrument)
-    }
-  }, [audioUnlocked, instrument, load])
+  // Audio was already unlocked on an earlier screen — just load this instrument.
+  useEffect(() => {
+    if (unlocked) enableSound()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const playNote = useCallback(() => {
-    if (ready) play(currentNote.sfNote)
-  }, [ready, play, currentNote])
+    play(instrument, currentNote.sfNote)
+  }, [play, instrument, currentNote])
 
+  // Play the note when it appears (after a short pause) and again when answered.
   useEffect(() => {
-    if (selected !== null) {
-      setShowCelebration(true)
-      if (ready) { stop(); play(currentNote.sfNote) }
-    }
-  }, [selected]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (!ready || !unlocked) return
+    if (answered) { playNote(); return }
+    const t = setTimeout(playNote, 300)
+    return () => clearTimeout(t)
+  }, [currentNote, ready, answered]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => () => stop(), [stop])
+
+  // After a wrong answer, move focus to "Next" so Enter/Space continues.
   useEffect(() => {
-    if (ready && audioUnlocked) {
-      const t = setTimeout(() => play(currentNote.sfNote), 300)
-      return () => clearTimeout(t)
-    }
-  }, [currentNote, ready]) // eslint-disable-line react-hooks/exhaustive-deps
+    if (answered && !isCorrect) nextBtnRef.current?.focus()
+  }, [answered, isCorrect])
 
-  const starsLabel = '⭐'.repeat(level.stars)
+  // Keyboard: number keys 1–7 pick the matching answer button.
+  useEffect(() => {
+    if (showCheatSheet) return
+    function onKey(e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      const idx = Number(e.key) - 1
+      if (!answered && Number.isInteger(idx) && idx >= 0 && idx < answers.length) {
+        enableSound()
+        answer(answers[idx])
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [answered, answers, answer, enableSound, showCheatSheet])
 
   return (
-    <div className={styles.page} onClick={unlockAndLoad}>
+    <div className={styles.page} onClick={unlocked ? undefined : enableSound}>
       {/* Header */}
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={onBack}>← Назад</button>
+        <button
+          className={styles.backBtn}
+          onClick={e => { e.stopPropagation(); onBack() }}
+        >
+          ← Назад
+        </button>
         <span className={styles.instrLabel}>
-          {INSTRUMENT_LABELS[instrument]}
-          <span className={styles.levelStars}>{starsLabel}</span>
+          {meta.name} {meta.emoji}
+          <span className={styles.levelStars} aria-label={`Ниво ${level.stars}`}>
+            {'⭐'.repeat(level.stars)}
+          </span>
         </span>
-        {selected !== null && !isCorrect
-          ? <button className={styles.nextBtn} onClick={handleNext}>Следваща →</button>
-          : <div className={styles.nextPlaceholder} />
-        }
-      </div>
-
-      {/* Help button on its own row */}
-      <div className={styles.helpRow}>
-        <button className={styles.helpBtn} onClick={() => setShowCheatSheet(true)} title="Помощ">🎼</button>
+        <div className={styles.helpSlot}>
+          <button
+            className={styles.helpBtn}
+            onClick={() => setShowCheatSheet(true)}
+            title="Помощ"
+            aria-label="Помощ: всички ноти"
+          >
+            🎼
+          </button>
+        </div>
       </div>
 
       {/* Score */}
@@ -79,19 +99,25 @@ export default function Game({ instrument, level, sound, onBack }) {
         <div className={styles.clefLabel}>{CLEF_LABELS[currentNote.clef]}</div>
 
         <div className={styles.staffWrap}>
-          <Staff note={currentNote} animate={selected === null} />
+          <Staff note={currentNote} animate={!answered} />
         </div>
 
         <button
           className={styles.listenBtn}
-          onClick={(e) => { e.stopPropagation(); unlockAndLoad(); playNote() }}
-          title="Чуй нотата"
+          onClick={(e) => { e.stopPropagation(); enableSound(); playNote() }}
+          aria-label="Чуй нотата"
+          disabled={loading}
         >
-          {loading ? '⏳' : '🔊'} Чуй
+          <span aria-hidden="true">{loading ? '⏳' : '🔊'}</span> Чуй
         </button>
 
-        {!audioUnlocked && (
+        {!unlocked && (
           <p className={styles.tapHint}>Натисни някъде, за да включиш звука 🔉</p>
+        )}
+        {error && (
+          <p className={styles.tapHint} role="alert">
+            Звукът не се зареди. Провери интернета и натисни „Чуй“ отново.
+          </p>
         )}
       </div>
 
@@ -103,10 +129,16 @@ export default function Game({ instrument, level, sound, onBack }) {
         answers={answers}
         selected={selected}
         correctAnswer={currentNote.solfege}
-        onAnswer={(choice) => { unlockAndLoad(); answer(choice) }}
+        onAnswer={(choice) => { enableSound(); answer(choice) }}
       />
 
-      <Celebration show={showCelebration} isCorrect={isCorrect} onNext={handleNext} />
+      {answered && <Celebration key={totalAnswered} isCorrect={isCorrect} onNext={next} />}
+
+      {answered && !isCorrect && (
+        <button ref={nextBtnRef} className={styles.nextBtn} onClick={next}>
+          Следваща →
+        </button>
+      )}
 
       {showCheatSheet && (
         <CheatSheet notes={level.notes} onClose={() => setShowCheatSheet(false)} />
