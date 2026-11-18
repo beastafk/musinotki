@@ -45,7 +45,12 @@ export default function Game({ instrument, level, sound, onBack }) {
 
   // After a wrong answer, move focus to "Next" so Enter/Space continues.
   useEffect(() => {
-    if (answered && !isCorrect) nextBtnRef.current?.focus()
+    if (!answered || isCorrect) return
+    const btn = nextBtnRef.current
+    if (!btn) return
+    btn.focus({ preventScroll: true })
+    // iOS doesn't scroll to programmatically focused buttons — do it explicitly
+    btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
   }, [answered, isCorrect])
 
   // Keyboard: number keys 1–7 pick the matching answer button.
@@ -132,12 +137,14 @@ export default function Game({ instrument, level, sound, onBack }) {
         onAnswer={(choice) => { enableSound(); answer(choice) }}
       />
 
-      {answered && <Celebration key={totalAnswered} isCorrect={isCorrect} onNext={next} />}
-
-      {answered && !isCorrect && (
-        <button ref={nextBtnRef} className={styles.nextBtn} onClick={next}>
-          Следваща →
-        </button>
+      {answered && (
+        <Celebration key={totalAnswered} isCorrect={isCorrect} onNext={next}>
+          {!isCorrect && (
+            <button ref={nextBtnRef} className={styles.nextBtn} onClick={next}>
+              Следваща →
+            </button>
+          )}
+        </Celebration>
       )}
 
       {showCheatSheet && (

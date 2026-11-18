@@ -32,7 +32,7 @@ function makeParticles() {
 }
 
 // Mount with a fresh `key` per answer: confetti and message are picked once.
-export default function Celebration({ isCorrect, onNext }) {
+export default function Celebration({ isCorrect, onNext, children }) {
   const [particles, setParticles] = useState(() => (isCorrect ? makeParticles() : []))
   const [message] = useState(() => MESSAGES[Math.floor(Math.random() * MESSAGES.length)])
 
@@ -65,6 +65,7 @@ export default function Celebration({ isCorrect, onNext }) {
         role="status"
       >
         <span>{isCorrect ? message : 'Опитай пак! 💪'}</span>
+        {children}
       </div>
     </>
   )
